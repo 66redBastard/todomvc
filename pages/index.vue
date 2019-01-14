@@ -10,29 +10,23 @@
       .toogle-all
         input.checkbox-all(id="checkbox" type="checkbox" @click="toggleSelect()")
 
-      .container-task(v-if="hidden === 'all'" v-for="tasks in taskObj")
-        input.checkbox-single(id="checkbox" type="checkbox" v-model="tasks.checked")
-        p
-          label(v-if="tasks.edit === false" v-on:dblclick="tasks.edit = true") {{ tasks.data }}
-          input.edit(v-if="tasks.edit === true" v-model="tasks.data" @keyup.enter="tasks.edit = false")
-        button.remove-btn(@click="remove(tasks.id)")
-          | x
+      .box(v-if="display === 'all'")
+        .container-task(v-for="tasks in taskObj")
+          input.checkbox-single(id="checkbox" type="checkbox" v-model="tasks.checked")
+          p
+            label(v-if="tasks.edit === false" v-on:dblclick="tasks.edit = true") {{ tasks.data }}
+            input.edit(v-if="tasks.edit === true" v-model="tasks.data" @keyup.enter="tasks.edit = false")
+          button.remove-btn(@click="remove(tasks.id)")
+            | x
 
-      .container-task(v-if="hidden === 'active'" v-for="tasks in undoneTasks")
-        input.checkbox-single(id="checkbox" type="checkbox" v-model="tasks.checked")
-        p
-          label(v-if="tasks.edit === false" v-on:dblclick="tasks.edit = true") {{ tasks.data }}
-          input.edit(v-if="tasks.edit === true" v-model="tasks.data" @keyup.enter="tasks.edit = false")
-        button.remove-btn(@click="remove(tasks.id)")
-          | x
-
-      .container-task(v-if="hidden === 'done'" v-for="tasks in checkedTasks")
-        input.checkbox-single(id="checkbox" type="checkbox" v-model="tasks.checked")
-        p
-          label(v-if="tasks.edit === false" v-on:dblclick="tasks.edit = true") {{ tasks.data }}
-          input.edit(v-if="tasks.edit === true" v-model="tasks.data" @keyup.enter="tasks.edit = false")
-        button.remove-btn(@click="remove(tasks.id)")
-          | x
+      .box(v-else)
+        .container-task(v-for="tasks in filtered")
+          input.checkbox-single(id="checkbox" type="checkbox" v-model="tasks.checked")
+          p
+            label(v-if="tasks.edit === false" v-on:dblclick="tasks.edit = true") {{ tasks.data }}
+            input.edit(v-if="tasks.edit === true" v-model="tasks.data" @keyup.enter="tasks.edit = false")
+          button.remove-btn(@click="remove(tasks.id)")
+            | x
 
     footer.footer
       span {{ itemsLeft }} items left
@@ -54,7 +48,7 @@ export default {
   data() {
     return {
       lenghtOrigi: null,
-      hidden: 'all',
+      display: 'all',
       inputData: {
         id: null,
         checked: false,
@@ -87,29 +81,27 @@ export default {
           data: 'task four',
         }
       ],
+      filtered: [],
     }
-  },
-  components: {
-    taskPattern,
   },
   computed: {
     selectAll() {
       return this.taskObj.every((task) => task.checked)
     },
+    //
+    // TODO: try with computed filtered array ???
+    //
     // filteredTasks() {
-    //   if(this.isShown === 'all') {
-    //     return this.taskObj =
-    //   } else if(this.isShown === 'active') {
-    //     return this.taskObj
-    //   } else {
-    //     return this.taskObj
+    //   // this.taskObj.some((task) => task.checked)
+    //   if(this.display === 'done') {
+    //     return this.taskObj.filter((task) => task.checked === true)
+    //   } else if(this.display === 'active') {
+    //     return this.taskObj.filter((task) => task.checked === false)
     //   }
     // },
+    //
     checkedTasks() {
       return this.taskObj.filter((task) => task.checked === true)
-    },
-    undoneTasks() {
-      return this.taskObj.filter((task) => task.checked === false)
     },
     itemsLeft() {
       return this.taskObj.length - this.checkedTasks.length
@@ -126,10 +118,12 @@ export default {
       this.taskObj.push(clone);
 
       this.inputData.data = "";
+
       this.arrLength()
     },
     remove(id) {
       let index = this.taskObj.map(item => item.id).indexOf(id)
+
       this.taskObj.splice(index, 1)
     },
     removeAll() {
@@ -140,14 +134,25 @@ export default {
 
       this.taskObj.forEach((task) => task.checked = !select);
     },
+    showAll() {
+      this.display = 'all'
+    },
     showDone() {
-      this.hidden = 'done'
+      this.display = 'done'
+
+      this.filteredTasks()
     },
     showActive() {
-      this.hidden = 'active'
+      this.display = 'active'
+
+      this.filteredTasks()
     },
-    showAll() {
-      this.hidden = 'all'
+    filteredTasks() {
+      if(this.display === 'done') {
+          this.filtered = this.taskObj.filter((task) => task.checked === true)
+      } else if(this.display === 'active') {
+          this.filtered = this.taskObj.filter((task) => task.checked === false)
+      }
     },
     arrLength() {
       this.lenghtOrigi = this.taskObj.length;
