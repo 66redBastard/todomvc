@@ -1,11 +1,11 @@
 <template lang="pug">
   section.container
     header.header
-      h1.title
-        | todos
+      h1.title todos
       form
         p
-          input.header-input(placeholder="Wat needs to be done" v-model="inputData.data" @keydown.enter.prevent="addTask")
+          input.header-input(placeholder="Wat needs to be done"
+            v-model="inputData.data" @keydown.enter.prevent="addTask")
     section.main
       .toogle-all
         input.checkbox-all(id="checkbox" type="checkbox" @click="toggleSelect()")
@@ -14,8 +14,10 @@
         .container-task(v-for="tasks in taskObj")
           input.checkbox-single(id="checkbox" type="checkbox" v-model="tasks.checked")
           p
-            label(v-if="tasks.edit === false" v-on:dblclick="tasks.edit = true") {{ tasks.data }}
-            input.edit(v-if="tasks.edit === true" v-model="tasks.data" @keyup.enter="tasks.edit = false")
+            label(v-if="tasks.edit === false" v-on:dblclick="tasks.edit = true")
+              | {{ tasks.data }}
+            input.edit(v-if="tasks.edit === true" v-model="tasks.data"
+              @keyup.enter="tasks.edit = false")
           button.remove-btn(@click="remove(tasks.id)")
             | x
 
@@ -23,8 +25,11 @@
         .container-task(v-for="tasks in filtered")
           input.checkbox-single(id="checkbox" type="checkbox" v-model="tasks.checked")
           p
-            label(v-if="tasks.edit === false" v-on:dblclick="tasks.edit = true") {{ tasks.data }}
-            input.edit(v-if="tasks.edit === true" v-model="tasks.data" @keyup.enter="tasks.edit = false")
+            label(v-if="tasks.edit === false"
+                  v-on:dblclick="tasks.edit = true")
+              | {{ tasks.data }}
+            input.edit(v-if="tasks.edit === true" v-model="tasks.data"
+                       @keyup.enter="tasks.edit = false")
           button.remove-btn(@click="remove(tasks.id)")
             | x
 
@@ -47,7 +52,7 @@ import taskPattern from '~/components/taskPattern.vue'
 export default {
   data() {
     return {
-      lenghtOrigi: null,
+      tasksObjOriginal: null,
       display: 'all',
       inputData: {
         id: null,
@@ -86,7 +91,7 @@ export default {
   },
   computed: {
     selectAll() {
-      return this.taskObj.every((task) => task.checked)
+      return this.taskObj.every((task) => task.checked);
     },
     //
     // TODO: try with computed filtered array ???
@@ -101,66 +106,58 @@ export default {
     // },
     //
     checkedTasks() {
-      return this.taskObj.filter((task) => task.checked === true)
+      return this.taskObj.filter((task) => task.checked === true);
     },
     itemsLeft() {
-      return this.taskObj.length - this.checkedTasks.length
+      return this.taskObj.length - this.checkedTasks.length;
     }
+  },
+  mounted() {
+    this.arrLength();
   },
   methods: {
     addTask() {
-      let origiLength = this.lenghtOrigi;
+      const clone = { ...this.inputData };
 
-      this.inputData.id = origiLength + 1;
-
-      let clone = {...this.inputData}
-
+      this.inputData.id = this.tasksObjOriginal + 1;
       this.taskObj.push(clone);
-
       this.inputData.data = "";
-
-      this.arrLength()
+      this.arrLength();
     },
     remove(id) {
-      let index = this.taskObj.map(item => item.id).indexOf(id)
-
-      this.taskObj.splice(index, 1)
+      const index = this.taskObj.map(item => item.id).indexOf(id);
+      this.taskObj.splice(index, 1);
     },
     removeAll() {
-       this.taskObj = this.taskObj.filter(task => !this.checkedTasks.find(taskDone => task.id === taskDone.id));
+       this.taskObj = this.taskObj.filter(task => !this.checkedTasks
+        .find(taskDone => task.id === taskDone.id));
     },
     toggleSelect() {
       let select = this.selectAll;
-
       this.taskObj.forEach((task) => task.checked = !select);
     },
     showAll() {
-      this.display = 'all'
+      this.display = 'all';
     },
     showDone() {
-      this.display = 'done'
-
-      this.filteredTasks()
+      this.display = 'done';
+      this.filteredTasks();
     },
     showActive() {
-      this.display = 'active'
-
-      this.filteredTasks()
+      this.display = 'active';
+      this.filteredTasks();
     },
     filteredTasks() {
       if(this.display === 'done') {
-          this.filtered = this.taskObj.filter((task) => task.checked === true)
+        this.filtered = this.taskObj.filter((task) => task.checked === true);
       } else if(this.display === 'active') {
-          this.filtered = this.taskObj.filter((task) => task.checked === false)
+        this.filtered = this.taskObj.filter((task) => task.checked === false);
       }
     },
     arrLength() {
-      this.lenghtOrigi = this.taskObj.length;
+      this.tasksObjOriginal = this.taskObj.length;
     },
   },
-  mounted() {
-    this.arrLength()
-  }
 }
 </script>
 
